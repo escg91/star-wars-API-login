@@ -7,6 +7,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     nombre = db.Column(db.String(80), unique=False, nullable=False)
     apellido = db.Column(db.String(80), unique=False, nullable=False)
+    favoritos = db.relationship('Favoritos', backref='User', lazy=True)
 
     def __repr__(self):
         return '<User %r>' % self.id
@@ -26,6 +27,7 @@ class Personajes(db.Model):
     name = db.Column(db.String (250))
     skin_color = db.Column(db.String (250))
     species = db.Column(db.String (250))
+    favoritos = db.relationship('Favoritos', backref='Personajes', lazy=True)
 
 def __repr__(self):
         return '<Personajes %r>' % self.id
@@ -45,6 +47,7 @@ class Planetas(db.Model):
     climate = db.Column(db.String (250))
     created = db.Column(db.String (250))
     diameter = db.Column(db.String (250))
+    favoritos = db.relationship('Favoritos', backref='Planetas', lazy=True)
 
     def __repr__(self):
         return '<Planetas %r>' % self.id
@@ -64,6 +67,7 @@ class Vehiculos(db.Model):
     cargo_capacity = db.Column(db.String (250))
     consumables = db.Column(db.String (250))
     cost_in_credits = db.Column(db.String (250))
+    favoritos = db.relationship('Favoritos', backref='Vehiculos', lazy=True)
 
     def __repr__(self):
         return '<Vehiculos %r>' % self.id
