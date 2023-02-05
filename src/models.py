@@ -5,6 +5,7 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    contraseña = db.Column(db.String(120), unique=False, nullable=False) 
     nombre = db.Column(db.String(80), unique=False, nullable=False)
     apellido = db.Column(db.String(80), unique=False, nullable=False)
     favoritos = db.relationship('Favoritos', backref='user', lazy=True)

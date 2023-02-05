@@ -9,6 +9,11 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User, Personajes, Planetas, Vehiculos, Favoritos
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
+import json
 #from models import Person
 
 app = Flask(__name__)
@@ -31,11 +36,46 @@ setup_admin(app)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+jwt = JWTManager(app)
+
 # generate sitemap with all your endpoints
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
 
+@app.route('/login', methods=['POST'])
+def login():
+    email= request.json.get("email",None) 
+    contraseña= request.json.get("contraseña",None)
+    user= User.query.filter_by(email=email).first()
+    if user is None: 
+        return jsonify({"msg":"usuario no existe"}),404
+
+    if email!=user.email or contraseña!=user.contraseña:
+        return jsonify({"msg":"usuario y contraseña incorrectas"}),401
+
+    access_token = create_access_token(identity=user.id)
+
+    response_body = {
+        "access_token": access_token,
+        "user": user.serialize()
+    }
+
+    return jsonify(response_body), 200
+
+@app.route('/registro', methods=['POST'])
+def registro():
+    body=json.loads(request.data)
+    user=User.query.filter_by(email=body["email"]).first()
+    if user is None: 
+        newuser=User(nombre=body["nombre"],apellido=body["apellido"],email=body["email"],contraseña=body["contraseña"])
+        db.session.add(newuser)
+        db.session.commit()
+        return jsonify({"msg":"usuario creado con exito"}),200
+    return jsonify({"msg":"el usuario ya existe en el sistema"}),401
+    
 @app.route('/user', methods=['GET'])
 def handle_hello():
     users = User.query.all()
